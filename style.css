@@ -1,0 +1,55 @@
+/* ===== ページ全体の設定 ===== */
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #111;
+    color: #fff;
+    font-family: sans-serif;
+}
+
+/* ===== ヘッダー（外枠）の設定 ===== */
+.site-header {
+    background-color: #1a1a1a;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+.site-header h1 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 0.05em;
+}
+.site-header p {
+    margin: 10px 0 0 0;
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* ===== 💡ココが重要：地図を囲う枠 ===== */
+.app-container {
+    width: 95%;
+    max-width: 1200px;
+    height: 70vh;       /* 画面の高さの70% */
+    min-height: 500px;  /* どんなに画面が小さくても最低500pxは確保 */
+    margin: 30px auto;  /* 上下30pxの余白、左右は中央寄せ */
+    position: relative;
+}
+
+/* ===== 地図本体の設定 ===== */
+#map {
+    width: 100%;
+    height: 100%; /* 上のapp-containerの高さ(70vh)に合わせて100%広がる */
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+/* ===== マップの下に文章などを書くためのエリア ===== */
+.content-area {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto 50px auto;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    line-height: 1.8;
+}
