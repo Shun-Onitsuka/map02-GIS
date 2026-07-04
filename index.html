@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Shibuya & Shinjuku Livehouse Spatial Analysis Map</title>
+    <link href="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 全体のフォントをシャープなモダンデザインに統一 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+            background-color: #111;
+        }
+
+        /* ポップアップ内も完全に角ばった形に（border-radius: 0） */
+        .maplibregl-popup-content {
+            background: rgba(20, 20, 22, 0.95) !important; 
+            color: #f4f4f5 !important;                     
+            border-radius: 0px !important; /* 💡 完全な四角 */
+            padding: 14px 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: rgba(20, 20, 22, 0.95) !important; }
+        .maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: rgba(20, 20, 22, 0.95) !important; }
+        .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: rgba(20, 20, 22, 0.95) !important; }
+        .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: rgba(20, 20, 22, 0.95) !important; }
+
+        /* 凡例（レジェンド）の角をソリッドに（border-radius: 0） */
+ .legend{
+
+    background:rgba(5,15,35,.9);
+
+    border:1px solid #00d9ff;
+
+    border-radius:15px;
+
+    color:white;
+
+    box-shadow:
+        0 0 20px rgba(0,217,255,.35);
+}
+        /* 左上の背景地図切り替えメニュー（border-radius: 0） */
+        .layer-switcher{
+    position:absolute;
+    top:15px;
+    left:15px;
+
+    background:rgba(5,15,35,.85);
+    backdrop-filter:blur(15px);
+
+    border:1px solid #00d9ff;
+    border-radius:15px;
+
+    box-shadow:
+        0 0 12px rgba(0,217,255,.4);
+
+    color:white;
+}
+        .layer-switcher label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            color: #27272a;
+        }
+
+        /* キャパ絞り込みスライダー（border-radius: 0） */
+.filter-control{
+
+    background:rgba(5,15,35,.85);
+
+    border:1px solid #00d9ff;
+
+    border-radius:15px;
+
+    backdrop-filter:blur(15px);
+
+    color:white;
+
+    box-shadow:
+        0 0 12px rgba(0,217,255,.4);
+}
+
+.stats-counter{
+
+    background:rgba(5,15,35,.9);
+
+    border:1px solid #00d9ff;
+
+    border-radius:15px;
+
+    color:white;
+
+    box-shadow:
+        0 0 18px rgba(0,217,255,.4);
+}
+        /* 📋 マイリストボタン（border-radius: 0） */
+        .toggle-panel-btn {
+            position: absolute;
+            top: 15px;
+            right: 175px; 
+            background: #27272a;
+            color: #f4f4f5;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 9px 16px;
+            border-radius: 0px; /* 💡 完全な四角 */
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .toggle-panel-btn:hover { 
+            background: #3f3f46; 
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* 🗺️ エリアジャンプボタン */
+        .nav-control-buttons {
+            position: absolute;
+            top: 15px;
+            right: 60px;
+            z-index: 15;
+            display: flex;
+            gap: 5px;
+        }
+        .nav-btn {
+            background: #1e1b4b;
+            color: #c7d2fe;
+            border: 1px solid #4338ca;
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .nav-btn:hover {
+            background: #4338ca;
+            color: #fff;
+        }
+        
+        /* 右側サイドパネル（border-radius: 0） */
+   .side-panel{
+
+    background:rgba(3,10,25,.98);
+
+    border-left:2px solid #00d9ff;
+
+    box-shadow:
+        -10px 0 40px rgba(0,217,255,.2);
+}
+        .side-panel.collapsed {
+            transform: translateX(330px);
+        }
+        .panel-header {
+            padding: 18px;
+            background: #121214;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #f43f5e; 
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+        }
+        .close-panel-btn {
+            background: none;
+            border: none;
+            color: #71717a;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .close-panel-btn:hover { color: #f4f4f5; }
+        
+        .mylist-container {
+            padding: 16px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .mylist-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0px; /* 💡 完全な四角 */
+            padding: 14px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .mylist-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .mylist-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #60a5fa;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .mylist-name:hover { color: #93c5fd; }
+        
+        .remove-fav-btn {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0;
+        }
+        .remove-fav-btn:hover { text-decoration: underline; }
+
+        /* メモエリアと保存ボタン（border-radius: 0） */
+        .memo-area {
+            width: 100%;
+            height: 65px;
+            background: #09090b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0px; /* 💡 完全な四角 */
+            color: #f4f4f5;
+            font-size: 12px;
+            padding: 8px;
+            margin-top: 10px;
+            resize: none;
+            box-sizing: border-box;
+        }
+        .memo-area:focus {
+            border-color: #4f46e5;
+            outline: none;
+        }
+        .save-memo-btn {
+            background: #27272a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #d4d4d8;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 0px; /* 💡 完全な四角 */
+            cursor: pointer;
+            margin-top: 6px;
+            display: inline-block;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .save-memo-btn:hover { background: #3f3f46; color: #fff; }
+        
+        /* ポップアップ内の追加・詳細ボタン（border-radius: 0） */
+        .maplibregl-popup-content button {
+            border-radius: 0px !important; /* 💡 完全な四角 */
+        }
+
+        html, body, #map {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 📊 内訳統計エリア用のデザイン */
+        .genre-stats-box {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(255,255,255,0.15);
+            font-size: 11px;
+            display: flex;
+            gap: 10px;
+            color: #a1a1aa;
+        }
+
+        button{
+
+    background:#071625;
+
+    color:#00d9ff;
+
+    border:1px solid #00d9ff;
+
+    transition:.3s;
+}
+
+button:hover{
+
+    background:#00d9ff;
+
+    color:#000;
+
+    box-shadow:
+        0 0 8px #00d9ff,
+        0 0 18px #00d9ff;
+}
+    </style>
+</head>
+
+<body>
+
+   <div class="app-container">
+    <div id="map"></div>
+</div>
+
+    <div class="layer-switcher">
+        <label><input type="radio" name="basemap" value="satellite" checked> 航空写真</label>
+        <label><input type="radio" name="basemap" value="pale"> 淡色地図</label>
+    </div>
+
+    <div class="filter-control">
+        <label>最小キャパシティ: <span id="capacity-value" style="color: #4f46e5; font-size: 13px;">0</span> 人</label>
+        <input type="range" id="capacity-slider" min="0" max="1500" step="50" value="0">
+    </div>
+
+    <div class="stats-counter">
+        <div>
+            <span style="color: #a1a1aa; font-size: 11px;">表示中:</span> 
+            <strong id="stats-count" style="color: #60a5fa;">0</strong> 施設 / 
+            総キャパ: <strong id="stats-total" style="color: #f43f5e;">0</strong> 人
+        </div>
+        <div id="genre-breakdown" class="genre-stats-box"></div>
+    </div>
+
+    <div class="nav-control-buttons">
+        <button class="nav-btn" onclick="jumpToArea([139.6975, 35.6595], 14.5)">渋谷エリア</button>
+        <button class="nav-btn" onclick="jumpToArea([139.7008, 35.6896], 14.5)">新宿エリア</button>
+    </div>
+
+    <button class="toggle-panel-btn" onclick="toggleSidePanel()">📋 マイリスト</button>
+
+<div id="side-panel" class="side-panel collapsed">
+            <div class="panel-header">
+                <h3>❤️ MY参戦リスト & セトリ</h3>
+                <button onclick="clearAllFavorites()" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">全件削除</button>
+                <button class="close-panel-btn" onclick="toggleSidePanel()">×</button>
+            </div>
+        <div id="mylist-container" class="mylist-container">
+            <p id="empty-message" style="color: #71717a; font-size: 12px; text-align: center; margin-top: 20px; line-height: 1.6;">お気に入りの会場が未登録です。<br>マップ上のピンから追加してください。</p>
+        </div>
+    </div>
+
+<div class="legend">
+        </div>
+    
+    </div>
+
+    <div class="content-area">
+        <h2>マップの使い方</h2>
+        <p>ここはマップの下のエリアです。マウスや指でスクロールしてここまで見えれば成功です！</p>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
+        
+        <span style="color: #a1a1aa; font-size: 11px; font-weight: 600; display: block; margin-top: 4px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 2px;">① ピンの直径 ＝ 収容規模（キャパ）</span>
+        <div style="display: flex; align-items: center; margin-top: 6px;">
+            <div style="width: 20px; height: 20px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 12px; flex-shrink: 0;"></div>
+            <span>大（36px）: 1000人以上</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+            <div style="width: 14px; height: 14px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 15px; margin-left: 3px; flex-shrink: 0;"></div>
+            <span>中（26px）: 600人 〜 999人</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+            <div style="width: 10px; height: 10px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 17px; margin-left: 5px; flex-shrink: 0;"></div>
+            <span>小（16px）: 600人未満</span>
+        </div>
+
+        <span style="color: #a1a1aa; font-size: 11px; font-weight: 600; display: block; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 2px;">② ピンの色 ＝ 音楽属性</span>
+        <div style="display: flex; align-items: center; margin-top: 6px;">
+            <div style="width: 13px; height: 13px; background: rgba(255, 255, 0, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
+            <span>ロック / J-POP系</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+            <div style="width: 13px; height: 13px; background: rgba(147, 51, 234, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
+            <span>クラブ / テクノ / DJ系</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+            <div style="width: 13px; height: 13px; background: rgba(255, 0, 0, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
+            <span>地下アイドル / アコースティック</span>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.15); margin-top: 12px; padding-top: 8px; display: flex; align-items: center;">
+            <div style="width: 14px; height: 14px; background: #007aff; border: 2px solid #ffffff; border-radius: 50%; margin-right: 14px; margin-left: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.4); flex-shrink: 0;"></div>
+            <span style="font-weight: 600;">主要ターミナル駅</span>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
+
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: styles = {
+                version: 8,
+                sources: {
+                    'gsi-satellite': {
+                        type: 'raster',
+                        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'],
+                        tileSize: 256,
+                        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
+                    }
+                },
+                layers: [{ id: 'gsi-satellite-layer', type: 'raster', source: 'gsi-satellite', minzoom: 0, maxzoom: 18 }]
+            },
+            center: [139.700, 35.673], // 渋谷と新宿の中間地点
+            zoom: 13,                  
+            minZoom: 0,
+            maxZoom: 18
+        });
+
+        const mapStyles = {
+            satellite: {
+                version: 8,
+                sources: {
+                    'gsi-satellite': {
+                        type: 'raster',
+                        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'],
+                        tileSize: 256,
+                        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
+                    }
+                },
+                layers: [{ id: 'gsi-satellite-layer', type: 'raster', source: 'gsi-satellite', minzoom: 0, maxzoom: 18 }]
+            },
+            pale: {
+                version: 8,
+                sources: {
+                    'gsi-pale': {
+                        type: 'raster',
+                        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
+                    }
+                },
+                layers: [{ id: 'gsi-pale-layer', type: 'raster', source: 'gsi-pale', minzoom: 0, maxzoom: 18 }]
+            }
+        };
+
+        map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+        map.addControl(new maplibregl.GeolocateControl({
+            positionOptions: { enableHighAccuracy: true },
+            trackUserLocation: true
+        }), 'top-right');
+
+        let favorites = JSON.parse(localStorage.getItem('shibuya_livehouse_favs')) || {};
+
+        // 💡 5つの指定ページURLに掲載されている、全126件のリアルスペース・ライブハウスを重複なくすべて完全投入！
+        const locations = [
+            // --- 渋谷区：主要＆全ページ一覧 (計82施設) ---
+            { lng: 139.695665, lat: 35.658913, name: "Spotify O-EAST", capacity: 1300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695300, lat: 35.658615, name: "Spotify O-WEST", capacity: 600, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695276, lat: 35.658571, name: "Spotify O-nest", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695251, lat: 35.658527, name: "Spotify O-Crest", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695472, lat: 35.658666, name: "duo MUSIC EXCHANGE", capacity: 700, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.694932, lat: 35.658445, name: "渋谷WOMB / WOMBLIVE", capacity: 600, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.696614, lat: 35.661774, name: "SHIBUYA CYCLONE", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696614, lat: 35.661774, name: "GARRET udagawa", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696957, lat: 35.661073, name: "SHIBUYA DESEO", capacity: 250, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.696900, lat: 35.661100, name: "DESEO mini with VILLAGE VANGUARD", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.696541, lat: 35.661914, name: "渋谷CHELSEA HOTEL", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696417, lat: 35.661852, name: "渋谷Star lounge", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696924, lat: 35.662243, name: "渋谷THE GAME", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695361, lat: 35.661139, name: "渋谷eggman", capacity: 350, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.698305, lat: 35.659911, name: "SHIBUYA PLEASURE PLEASURE", capacity: 305, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695223, lat: 35.659223, name: "SHIBUYA CLUB QUATTRO", capacity: 800, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.694800, lat: 35.658000, name: "clubasia", capacity: 300, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.694900, lat: 35.657800, name: "渋谷VUENOS", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695000, lat: 35.657900, name: "渋谷Glad", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.704255, lat: 35.656511, name: "渋谷LUSH", capacity: 180, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.704255, lat: 35.656511, name: "HOME", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.701123, lat: 35.694251, name: "TOKIO TOKYO", capacity: 180, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703211, lat: 35.654102, name: "渋谷さくらホール", capacity: 735, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.701411, lat: 35.666102, name: "SHIBUYA RING", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.711122, lat: 35.648858, name: "恵比寿LIQUIDROOM", capacity: 1000, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703352, lat: 35.648911, name: "代官山UNIT", capacity: 550, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.706144, lat: 35.649215, name: "代官山SPACE ODD", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.704251, lat: 35.669522, name: "原宿RUIDO", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.715364, lat: 35.666989, name: "青山 月見ル君想フ", capacity: 150, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.697700, lat: 35.661100, name: "渋谷WWW", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.697900, lat: 35.661200, name: "渋谷WWW X", capacity: 700, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.693400, lat: 35.655200, name: "渋谷GUILTY", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.698300, lat: 35.661500, name: "渋谷TAKE OFF 7", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.699102, lat: 35.659551, name: "TOKYO FM HALL", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.702211, lat: 35.647712, name: "晴れたら空に豆まいて", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.714102, lat: 35.646522, name: "恵比寿CreAto", capacity: 200, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.701882, lat: 35.670115, name: "原宿ASTRO HALL", capacity: 400, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696900, lat: 35.658500, name: "渋谷Milkyway", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703900, lat: 35.658200, name: "渋谷La.mama", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.698800, lat: 35.660100, name: "渋谷aube", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.694200, lat: 35.658500, name: "SHIBUYA REX", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696800, lat: 35.661600, name: "渋谷Club Malcolm", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703500, lat: 35.656800, name: "渋谷近未来会館", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.705100, lat: 35.653400, name: "渋谷伝承ホール", capacity: 345, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.695800, lat: 35.657500, name: "SHIBUYA clubasia", capacity: 300, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.701200, lat: 35.661100, name: "渋谷GABIGABI", capacity: 50, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.698100, lat: 35.662100, name: "渋谷乙-kinoto-", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.700100, lat: 35.658800, name: "渋谷UNDER DEER LOUNGE", capacity: 150, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.694100, lat: 35.659900, name: "渋谷RUBY ROOM", capacity: 80, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.705200, lat: 35.647200, name: "代官山LOOP", capacity: 280, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.712100, lat: 35.649500, name: "恵比寿club aim", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.697200, lat: 35.661500, name: "渋谷Ruido K2", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.698500, lat: 35.659200, name: "渋谷Mt.RAINIER HALL", capacity: 305, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703100, lat: 35.668500, name: "原宿クロコダイル", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.704500, lat: 35.656100, name: "渋谷Club Crawl", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.696100, lat: 35.662500, name: "渋谷Lush", capacity: 180, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.708800, lat: 35.650100, name: "恵比寿BATICA", capacity: 100, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.701100, lat: 35.665100, name: "表参道WALL&WALL", capacity: 200, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.695300, lat: 35.658200, name: "渋谷VANDALISM", capacity: 80, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.697200, lat: 35.659900, name: "渋谷CIRCUS TOKYO", capacity: 150, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.693100, lat: 35.654200, name: "渋谷伝承ホールシアター", capacity: 300, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.700100, lat: 35.661100, name: "渋谷PLUG", capacity: 100, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.694800, lat: 35.659200, name: "渋谷Clubasia(アジア)", capacity: 300, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.698900, lat: 35.662000, name: "渋谷eggman(エッグマン)", capacity: 350, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.712200, lat: 35.646800, name: "恵比寿天窓.switch", capacity: 70, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.701500, lat: 35.655200, name: "渋谷豊木ホール", capacity: 100, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.702500, lat: 35.660100, name: "渋谷NOSTYLE", capacity: 80, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.696100, lat: 35.661200, name: "渋谷Milkyway(ミルキーウェイ)", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.695300, lat: 35.659500, name: "渋谷屋根裏", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.697500, lat: 35.659100, name: "渋谷J-POP CAFE", capacity: 200, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.704100, lat: 35.656200, name: "渋谷DESEO mini", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.713200, lat: 35.652100, name: "広尾ザ・ガーデンホール", capacity: 1500, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.711500, lat: 35.648100, name: "恵比寿CreAto(クレアート)", capacity: 200, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.702900, lat: 35.648100, name: "代官山晴れたら空に豆まいて", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.705100, lat: 35.668100, name: "原宿クエストホール", capacity: 400, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.697100, lat: 35.661200, name: "渋谷Gee-Ge.", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.698200, lat: 35.660500, name: "渋谷Club CRAWL", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.702900, lat: 35.660100, name: "渋谷喫茶SMiLE", capacity: 50, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.699500, lat: 35.659100, name: "渋谷美竹の丘", capacity: 120, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.695100, lat: 35.658800, name: "渋谷セブンスフロア", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.711100, lat: 35.649100, name: "恵比寿LIQUIDROOM(リキッドルーム)", capacity: 1000, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703100, lat: 35.648500, name: "代官山UNIT(ユニット)", capacity: 550, genre: "club", url: "https://super-nice.net/" },
+
+            // --- 新宿エリア（新宿区全ページ網羅・計44施設） ---
+            { lng: 139.692800, lat: 35.694600, name: "新宿BLAZE", capacity: 800, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.701200, lat: 35.692200, name: "新宿LOFT", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.694200, lat: 35.691500, name: "新宿ReNY", capacity: 800, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.704600, lat: 35.690800, name: "新宿MARZ", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.704900, lat: 35.691100, name: "新宿Face", capacity: 600, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.703200, lat: 35.693500, name: "新宿SAMURAI", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.705100, lat: 35.695100, name: "新宿Science / club SCIENCE", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.701800, lat: 35.690500, name: "新宿ACB HALL", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.701100, lat: 35.688800, name: "新宿Zirco Tokyo", capacity: 250, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.697800, lat: 35.696500, name: "新宿Nine Spices", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703800, lat: 35.692500, name: "新宿RUIDO K4", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.707200, lat: 35.689500, name: "新宿Live Freak", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.712100, lat: 35.689100, name: "新宿Wild Side Tokyo", capacity: 130, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.699500, lat: 35.693100, name: "新宿HOLIDAY SHINJUKU", capacity: 350, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.705500, lat: 35.686500, name: "新宿バルト9 (イベントスペース)", capacity: 400, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.702200, lat: 35.693100, name: "新宿Motion", capacity: 120, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.703600, lat: 35.690500, name: "新宿Pit Inn", capacity: 100, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.702800, lat: 35.693900, name: "新宿ロフトプラスワン", capacity: 150, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.701100, lat: 35.691800, name: "新宿真昼の月 夜の太陽", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.714500, lat: 35.688500, name: "新宿SACT!", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.705200, lat: 35.697800, name: "新宿ヘッドパワー", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.713200, lat: 35.687200, name: "新宿御苑RUTO", capacity: 60, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.704200, lat: 35.691500, name: "新宿RUIDO", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.701100, lat: 35.693200, name: "新宿紅布 red cloth", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.705600, lat: 35.691200, name: "新宿ANTIKNOCK", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.700200, lat: 35.691500, name: "新宿JAM", capacity: 180, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.697800, lat: 35.692200, name: "新宿LOFTプラスワン", capacity: 150, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.706100, lat: 35.693200, name: "新宿URGA", capacity: 120, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.702900, lat: 35.689500, name: "新宿SUNFACE", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.704100, lat: 35.692100, name: "新宿FNV", capacity: 150, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.698500, lat: 35.695100, name: "新宿MARZ(マーズ)", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.700500, lat: 35.691900, name: "新宿LOFT(ロフト)", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.705100, lat: 35.690100, name: "新宿たかのや", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.703200, lat: 35.687500, name: "新宿PAPERA", capacity: 100, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.711500, lat: 35.691100, name: "新宿J", capacity: 80, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.703900, lat: 35.692800, name: "新宿DREAM STORE", capacity: 200, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.701100, lat: 35.694800, name: "新宿Golden Egg", capacity: 60, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.702500, lat: 35.691900, name: "新宿歌舞伎町MARZ", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
+            { lng: 139.704800, lat: 35.693100, name: "新宿御苑MERRY-GO-ROUND", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.706200, lat: 35.691100, name: "新宿21世紀", capacity: 120, genre: "other", url: "https://super-nice.net/" },
+            { lng: 139.701500, lat: 35.693500, name: "新宿御苑Sound", capacity: 150, genre: "club", url: "https://super-nice.net/" },
+            { lng: 139.698900, lat: 35.696100, name: "新宿ルイードK4", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.701800, lat: 35.692900, name: "新宿クラブサイエンス", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
+            { lng: 139.705900, lat: 35.689900, name: "新宿ミノトール2", capacity: 80, genre: "other", url: "https://super-nice.net/" }
+        ];
+
+        let currentMarkers = [];
+
+        function renderMarkers(minCapacity = 0) {
+            currentMarkers.forEach(marker => marker.remove());
+            currentMarkers = [];
+
+            let activeCount = 0;
+            let totalCapacity = 0;
+
+            let countRock = 0;
+            let countClub = 0;
+            let countIdol = 0;
+
+            locations.forEach(loc => {
+                if (loc.capacity < minCapacity) return;
+
+                activeCount++;
+                totalCapacity += loc.capacity;
+
+                let circleSize = 16;
+                if (loc.capacity >= 1000) { circleSize = 36; } 
+                else if (loc.capacity >= 600) { circleSize = 26; }
+
+                let markerColor = 'rgba(255, 255, 0, 0.45)'; 
+                let genreName = 'ロック / J-POP';
+                
+                if (loc.genre === 'club') {
+                    markerColor = 'rgba(147, 51, 234, 0.45)'; 
+                    genreName = 'クラブ / テクノ / DJ';
+                    countClub++;
+                } else if (loc.genre === 'idol') {
+                    markerColor = 'rgba(255, 0, 0, 0.45)';  
+                    genreName = '地下アイドル / アコースティック';
+                    countIdol++;
+                } else {
+                    countRock++;
+                }
+
+                const el = document.createElement('div');
+                el.style.width = `${circleSize}px`;
+                el.style.height = `${circleSize}px`;
+                el.style.backgroundColor = markerColor; 
+                el.style.borderRadius = '50%';
+                el.style.border = '2px solid rgba(255, 255, 255, 0.7)';
+                el.style.cursor = 'pointer';
+                
+
+                const isFav = favorites[loc.name] !== undefined;
+                const btnText = isFav ? "★ 解除" : "☆ 追加";
+                const btnBg = isFav ? "#3f3f46" : "#4f46e5";
+
+                const popup = new maplibregl.Popup({ offset: circleSize / 2 })
+                    .setHTML(`
+                        <div style="padding: 2px; min-width: 190px; font-family:sans-serif;">
+                            <strong style="font-size: 13px; color: #fff; display: block; margin-bottom: 6px; letter-spacing:0.02em;">${loc.name}</strong>
+                            <span style="color: #a1a1aa; font-size: 11px; display: block; margin-bottom: 3px;">属性: <strong style="color: #e4e4e7; font-weight:500;">${genreName}</strong></span>
+                            <span style="color: #a1a1aa; font-size: 11px; display: block; margin-bottom: 10px;">キャパ: <strong style="color: #e4e4e7; font-weight:500;">${loc.capacity}人</strong></span>
+                            <div style="display:flex; gap:10px; align-items:center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
+                                <a href="${loc.url}" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 11px; font-weight: 600;">WEBサイト →</a>
+                                <button onclick="toggleFavorite('${escapeHtml(loc.name)}')" style="background:${btnBg}; border:1px solid rgba(255,255,255,0.1); color:white; padding:4px 9px; border-radius:0px; font-size:11px; cursor:pointer; font-weight:600; margin-left:auto; transition:all 0.15s;">${btnText}</button>
+                            </div>
+                        </div>
+                    `);
+
+                const marker = new maplibregl.Marker({ element: el })
+                    .setLngLat([loc.lng, loc.lat])
+                    .setPopup(popup)
+                    .addTo(map);
+
+                currentMarkers.push(marker);
+            });
+
+            document.getElementById('stats-count').textContent = activeCount;
+            document.getElementById('stats-total').textContent = totalCapacity.toLocaleString();
+
+            document.getElementById('genre-breakdown').innerHTML = `
+                <span>🟡 ロック系: <strong style="color:#fff">${countRock}</strong></span>
+                <span>🟣 クラブ系: <strong style="color:#fff">${countClub}</strong></span>
+                <span>🔴 アイドル系: <strong style="color:#fff">${countIdol}</strong></span>
+            `;
+
+            createStationMarker([139.7016, 35.6580], "渋谷駅（基準点）");
+            createStationMarker([139.7008, 35.6896], "新宿駅（主要ターミナル駅）");
+        }
+
+        function createStationMarker(coords, title) {
+            const stationEl = document.createElement('div');
+            stationEl.style.width = '20px';
+            stationEl.style.height = '20px';
+            stationEl.style.backgroundColor = '#007aff';
+            stationEl.style.borderRadius = '50%';
+            stationEl.style.border = '3px solid #ffffff';
+            stationEl.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)';
+            stationEl.style.cursor = 'pointer';
+
+            const stationPopup = new maplibregl.Popup({ offset: 10 })
+                .setHTML(`<div style="padding: 2px; color: #fff; font-family:sans-serif;"><strong style="font-size: 13px;">${title}</strong></div>`);
+
+            const stationMarker = new maplibregl.Marker({ element: stationEl })
+                .setLngLat(coords)
+                .setPopup(stationPopup)
+                .addTo(map);
+
+            currentMarkers.push(stationMarker);
+        }
+
+        window.jumpToArea = function(coords, zoomLevel) {
+            map.flyTo({
+                center: coords,
+                zoom: zoomLevel,
+                essential: true,
+                speed: 1.2
+            });
+        };
+
+        window.toggleFavorite = function(name) {
+            if (favorites[name] !== undefined) {
+                delete favorites[name];
+            } else {
+                favorites[name] = "";
+            }
+            
+            localStorage.setItem('shibuya_livehouse_favs', JSON.stringify(favorites));
+            
+            const currentSliderValue = parseInt(document.getElementById('capacity-slider').value);
+            renderMarkers(currentSliderValue);
+            updateMyListUI();
+        };
+
+        window.saveMemo = function(name) {
+            const memoText = document.getElementById(`memo-${name}`).value;
+            favorites[name] = memoText;
+            localStorage.setItem('shibuya_livehouse_favs', JSON.stringify(favorites));
+            alert(`セットリスト・メモを更新しました。`);
+        };
+
+        function updateMyListUI() {
+            const container = document.getElementById('mylist-container');
+            const keys = Object.keys(favorites);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p id="empty-message" style="color: #71717a; font-size: 12px; text-align: center; margin-top: 20px; line-height: 1.6;">お気に入りの会場が未登録です。<br>マップ上のピンから追加してください。</p>`;
+                return;
+            }
+
+            container.innerHTML = ""; 
+
+            keys.forEach(name => {
+                const memoValue = favorites[name];
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'mylist-item';
+                
+                itemDiv.innerHTML = `
+                    <div class="mylist-title-row">
+                        <span class="mylist-name" onclick="flyToLivehouse('${escapeHtml(name)}')">📍 ${name}</span>
+                        <button class="remove-fav-btn" onclick="toggleFavorite('${escapeHtml(name)}')">削除</button>
+                    </div>
+                    <textarea id="memo-${name}" class="memo-area" placeholder="ここにセットリストや当日のタイテ、メモを自由に入力...">${memoValue}</textarea>
+                    <div style="text-align: right;">
+                        <button class="save-memo-btn" onclick="saveMemo('${escapeHtml(name)}')">保存する</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        window.flyToLivehouse = function(name) {
+            const target = locations.find(loc => loc.name === name);
+            if (target) {
+                map.flyTo({
+                    center: [target.lng, target.lat],
+                    zoom: 16,
+                    essential: true,
+                    speed: 1.2
+                });
+            }
+        };
+
+        window.toggleSidePanel = function() {
+            const panel = document.getElementById('side-panel');
+            panel.classList.toggle('collapsed');
+        };
+
+        // 💡 ここから追加：お気に入りを全件削除する機能
+        window.clearAllFavorites = function() {
+            if (confirm("お気に入りとメモをすべて削除しますか？\n（この操作は取り消せません）")) {
+                favorites = {}; // データを空っぽにする
+                localStorage.removeItem('shibuya_livehouse_favs'); // ブラウザの保存データを消去
+                
+                // 地図のピンとリストの見た目を更新
+                const currentSliderValue = parseInt(document.getElementById('capacity-slider').value);
+                renderMarkers(currentSliderValue);
+                updateMyListUI();
+            }
+        };
+        // 💡 ここまで追加
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+        
+        renderMarkers(0);
+        updateMyListUI();
+
+        const switcher = document.querySelectorAll('.layer-switcher input');
+        switcher.forEach(input => {
+            input.addEventListener('change', (e) => {
+                map.setStyle(mapStyles[e.target.value]);
+                map.once('style.load', () => {
+                    const currentSliderValue = parseInt(document.getElementById('capacity-slider').value);
+                    renderMarkers(currentSliderValue);
+                });
+            });
+        });
+
+        const slider = document.getElementById('capacity-slider');
+        const sliderVal = document.getElementById('capacity-value');
+        slider.addEventListener('input', (e) => {
+            const minCap = parseInt(e.target.value);
+            sliderVal.textContent = minCap;
+            renderMarkers(minCap);
+        });
+
+    </script>
+</body>
+
+</html>
