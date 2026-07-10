@@ -358,45 +358,11 @@ button:hover{
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
-        
-        <span style="color: #a1a1aa; font-size: 11px; font-weight: 600; display: block; margin-top: 4px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 2px;">① ピンの直径 ＝ 収容規模（キャパ）</span>
-        <div style="display: flex; align-items: center; margin-top: 6px;">
-            <div style="width: 20px; height: 20px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 12px; flex-shrink: 0;"></div>
-            <span>大（36px）: 1000人以上</span>
-        </div>
-        <div style="display: flex; align-items: center; margin-top: 5px;">
-            <div style="width: 14px; height: 14px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 15px; margin-left: 3px; flex-shrink: 0;"></div>
-            <span>中（26px）: 600人 〜 999人</span>
-        </div>
-        <div style="display: flex; align-items: center; margin-top: 5px;">
-            <div style="width: 10px; height: 10px; background: rgba(161,161,170,0.3); border: 2px solid rgba(255,255,255,0.6); border-radius: 50%; margin-right: 17px; margin-left: 5px; flex-shrink: 0;"></div>
-            <span>小（16px）: 600人未満</span>
-        </div>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-        <span style="color: #a1a1aa; font-size: 11px; font-weight: 600; display: block; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 2px;">② ピンの色 ＝ 音楽属性</span>
-        <div style="display: flex; align-items: center; margin-top: 6px;">
-            <div style="width: 13px; height: 13px; background: rgba(255, 255, 0, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
-            <span>ロック / J-POP系</span>
-        </div>
-        <div style="display: flex; align-items: center; margin-top: 5px;">
-            <div style="width: 13px; height: 13px; background: rgba(147, 51, 234, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
-            <span>クラブ / テクノ / DJ系</span>
-        </div>
-        <div style="display: flex; align-items: center; margin-top: 5px;">
-            <div style="width: 13px; height: 13px; background: rgba(255, 0, 0, 0.45); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 50%; margin-right: 12px; margin-left: 3px; flex-shrink: 0;"></div>
-            <span>地下アイドル / アコースティック</span>
-        </div>
-
-        <div style="border-top: 1px solid rgba(255,255,255,0.15); margin-top: 12px; padding-top: 8px; display: flex; align-items: center;">
-            <div style="width: 14px; height: 14px; background: #007aff; border: 2px solid #ffffff; border-radius: 50%; margin-right: 14px; margin-left: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.4); flex-shrink: 0;"></div>
-            <span style="font-weight: 600;">主要ターミナル駅</span>
-        </div>
-    </div>
-
-    <script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
-
-    <script>
-        const map = new maplibregl.Map({
+<script>
+const map = new maplibregl.Map({
+    
             container: 'map',
             style: styles = {
                 version: 8,
@@ -415,7 +381,14 @@ button:hover{
             minZoom: 0,
             maxZoom: 18
         });
+        map.on("click", (e) => {
+    const lat = e.lngLat.lat.toFixed(6);
+    const lng = e.lngLat.lng.toFixed(6);
 
+    alert(`緯度: ${lat}\n経度: ${lng}`);
+
+    console.log(`${lat},${lng}`);
+});
         const mapStyles = {
             satellite: {
                 version: 8,
@@ -451,139 +424,27 @@ button:hover{
 
         let favorites = JSON.parse(localStorage.getItem('shibuya_livehouse_favs')) || {};
 
-        // 💡 5つの指定ページURLに掲載されている、全126件のリアルスペース・ライブハウスを重複なくすべて完全投入！
-        const locations = [
-            // --- 渋谷区：主要＆全ページ一覧 (計82施設) ---
-            { lng: 139.695665, lat: 35.658913, name: "Spotify O-EAST", capacity: 1300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695300, lat: 35.658615, name: "Spotify O-WEST", capacity: 600, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695276, lat: 35.658571, name: "Spotify O-nest", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695251, lat: 35.658527, name: "Spotify O-Crest", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695472, lat: 35.658666, name: "duo MUSIC EXCHANGE", capacity: 700, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.694932, lat: 35.658445, name: "渋谷WOMB / WOMBLIVE", capacity: 600, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.696614, lat: 35.661774, name: "SHIBUYA CYCLONE", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696614, lat: 35.661774, name: "GARRET udagawa", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696957, lat: 35.661073, name: "SHIBUYA DESEO", capacity: 250, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.696900, lat: 35.661100, name: "DESEO mini with VILLAGE VANGUARD", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.696541, lat: 35.661914, name: "渋谷CHELSEA HOTEL", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696417, lat: 35.661852, name: "渋谷Star lounge", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696924, lat: 35.662243, name: "渋谷THE GAME", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695361, lat: 35.661139, name: "渋谷eggman", capacity: 350, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.698305, lat: 35.659911, name: "SHIBUYA PLEASURE PLEASURE", capacity: 305, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695223, lat: 35.659223, name: "SHIBUYA CLUB QUATTRO", capacity: 800, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.694800, lat: 35.658000, name: "clubasia", capacity: 300, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.694900, lat: 35.657800, name: "渋谷VUENOS", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695000, lat: 35.657900, name: "渋谷Glad", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.704255, lat: 35.656511, name: "渋谷LUSH", capacity: 180, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.704255, lat: 35.656511, name: "HOME", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.701123, lat: 35.694251, name: "TOKIO TOKYO", capacity: 180, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703211, lat: 35.654102, name: "渋谷さくらホール", capacity: 735, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.701411, lat: 35.666102, name: "SHIBUYA RING", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.711122, lat: 35.648858, name: "恵比寿LIQUIDROOM", capacity: 1000, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703352, lat: 35.648911, name: "代官山UNIT", capacity: 550, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.706144, lat: 35.649215, name: "代官山SPACE ODD", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.704251, lat: 35.669522, name: "原宿RUIDO", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.715364, lat: 35.666989, name: "青山 月見ル君想フ", capacity: 150, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.697700, lat: 35.661100, name: "渋谷WWW", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.697900, lat: 35.661200, name: "渋谷WWW X", capacity: 700, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.693400, lat: 35.655200, name: "渋谷GUILTY", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.698300, lat: 35.661500, name: "渋谷TAKE OFF 7", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.699102, lat: 35.659551, name: "TOKYO FM HALL", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.702211, lat: 35.647712, name: "晴れたら空に豆まいて", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.714102, lat: 35.646522, name: "恵比寿CreAto", capacity: 200, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.701882, lat: 35.670115, name: "原宿ASTRO HALL", capacity: 400, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696900, lat: 35.658500, name: "渋谷Milkyway", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703900, lat: 35.658200, name: "渋谷La.mama", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.698800, lat: 35.660100, name: "渋谷aube", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.694200, lat: 35.658500, name: "SHIBUYA REX", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696800, lat: 35.661600, name: "渋谷Club Malcolm", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703500, lat: 35.656800, name: "渋谷近未来会館", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.705100, lat: 35.653400, name: "渋谷伝承ホール", capacity: 345, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.695800, lat: 35.657500, name: "SHIBUYA clubasia", capacity: 300, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.701200, lat: 35.661100, name: "渋谷GABIGABI", capacity: 50, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.698100, lat: 35.662100, name: "渋谷乙-kinoto-", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.700100, lat: 35.658800, name: "渋谷UNDER DEER LOUNGE", capacity: 150, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.694100, lat: 35.659900, name: "渋谷RUBY ROOM", capacity: 80, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.705200, lat: 35.647200, name: "代官山LOOP", capacity: 280, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.712100, lat: 35.649500, name: "恵比寿club aim", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.697200, lat: 35.661500, name: "渋谷Ruido K2", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.698500, lat: 35.659200, name: "渋谷Mt.RAINIER HALL", capacity: 305, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703100, lat: 35.668500, name: "原宿クロコダイル", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.704500, lat: 35.656100, name: "渋谷Club Crawl", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.696100, lat: 35.662500, name: "渋谷Lush", capacity: 180, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.708800, lat: 35.650100, name: "恵比寿BATICA", capacity: 100, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.701100, lat: 35.665100, name: "表参道WALL&WALL", capacity: 200, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.695300, lat: 35.658200, name: "渋谷VANDALISM", capacity: 80, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.697200, lat: 35.659900, name: "渋谷CIRCUS TOKYO", capacity: 150, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.693100, lat: 35.654200, name: "渋谷伝承ホールシアター", capacity: 300, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.700100, lat: 35.661100, name: "渋谷PLUG", capacity: 100, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.694800, lat: 35.659200, name: "渋谷Clubasia(アジア)", capacity: 300, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.698900, lat: 35.662000, name: "渋谷eggman(エッグマン)", capacity: 350, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.712200, lat: 35.646800, name: "恵比寿天窓.switch", capacity: 70, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.701500, lat: 35.655200, name: "渋谷豊木ホール", capacity: 100, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.702500, lat: 35.660100, name: "渋谷NOSTYLE", capacity: 80, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.696100, lat: 35.661200, name: "渋谷Milkyway(ミルキーウェイ)", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.695300, lat: 35.659500, name: "渋谷屋根裏", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.697500, lat: 35.659100, name: "渋谷J-POP CAFE", capacity: 200, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.704100, lat: 35.656200, name: "渋谷DESEO mini", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.713200, lat: 35.652100, name: "広尾ザ・ガーデンホール", capacity: 1500, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.711500, lat: 35.648100, name: "恵比寿CreAto(クレアート)", capacity: 200, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.702900, lat: 35.648100, name: "代官山晴れたら空に豆まいて", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.705100, lat: 35.668100, name: "原宿クエストホール", capacity: 400, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.697100, lat: 35.661200, name: "渋谷Gee-Ge.", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.698200, lat: 35.660500, name: "渋谷Club CRAWL", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.702900, lat: 35.660100, name: "渋谷喫茶SMiLE", capacity: 50, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.699500, lat: 35.659100, name: "渋谷美竹の丘", capacity: 120, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.695100, lat: 35.658800, name: "渋谷セブンスフロア", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.711100, lat: 35.649100, name: "恵比寿LIQUIDROOM(リキッドルーム)", capacity: 1000, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703100, lat: 35.648500, name: "代官山UNIT(ユニット)", capacity: 550, genre: "club", url: "https://super-nice.net/" },
+let locations = [];
 
-            // --- 新宿エリア（新宿区全ページ網羅・計44施設） ---
-            { lng: 139.692800, lat: 35.694600, name: "新宿BLAZE", capacity: 800, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.701200, lat: 35.692200, name: "新宿LOFT", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.694200, lat: 35.691500, name: "新宿ReNY", capacity: 800, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.704600, lat: 35.690800, name: "新宿MARZ", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.704900, lat: 35.691100, name: "新宿Face", capacity: 600, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.703200, lat: 35.693500, name: "新宿SAMURAI", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.705100, lat: 35.695100, name: "新宿Science / club SCIENCE", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.701800, lat: 35.690500, name: "新宿ACB HALL", capacity: 250, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.701100, lat: 35.688800, name: "新宿Zirco Tokyo", capacity: 250, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.697800, lat: 35.696500, name: "新宿Nine Spices", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703800, lat: 35.692500, name: "新宿RUIDO K4", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.707200, lat: 35.689500, name: "新宿Live Freak", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.712100, lat: 35.689100, name: "新宿Wild Side Tokyo", capacity: 130, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.699500, lat: 35.693100, name: "新宿HOLIDAY SHINJUKU", capacity: 350, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.705500, lat: 35.686500, name: "新宿バルト9 (イベントスペース)", capacity: 400, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.702200, lat: 35.693100, name: "新宿Motion", capacity: 120, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.703600, lat: 35.690500, name: "新宿Pit Inn", capacity: 100, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.702800, lat: 35.693900, name: "新宿ロフトプラスワン", capacity: 150, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.701100, lat: 35.691800, name: "新宿真昼の月 夜の太陽", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.714500, lat: 35.688500, name: "新宿SACT!", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.705200, lat: 35.697800, name: "新宿ヘッドパワー", capacity: 150, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.713200, lat: 35.687200, name: "新宿御苑RUTO", capacity: 60, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.704200, lat: 35.691500, name: "新宿RUIDO", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.701100, lat: 35.693200, name: "新宿紅布 red cloth", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.705600, lat: 35.691200, name: "新宿ANTIKNOCK", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.700200, lat: 35.691500, name: "新宿JAM", capacity: 180, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.697800, lat: 35.692200, name: "新宿LOFTプラスワン", capacity: 150, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.706100, lat: 35.693200, name: "新宿URGA", capacity: 120, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.702900, lat: 35.689500, name: "新宿SUNFACE", capacity: 100, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.704100, lat: 35.692100, name: "新宿FNV", capacity: 150, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.698500, lat: 35.695100, name: "新宿MARZ(マーズ)", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.700500, lat: 35.691900, name: "新宿LOFT(ロフト)", capacity: 500, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.705100, lat: 35.690100, name: "新宿たかのや", capacity: 80, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.703200, lat: 35.687500, name: "新宿PAPERA", capacity: 100, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.711500, lat: 35.691100, name: "新宿J", capacity: 80, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.703900, lat: 35.692800, name: "新宿DREAM STORE", capacity: 200, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.701100, lat: 35.694800, name: "新宿Golden Egg", capacity: 60, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.702500, lat: 35.691900, name: "新宿歌舞伎町MARZ", capacity: 300, genre: "idol", url: "https://super-nice.net/" },
-            { lng: 139.704800, lat: 35.693100, name: "新宿御苑MERRY-GO-ROUND", capacity: 100, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.706200, lat: 35.691100, name: "新宿21世紀", capacity: 120, genre: "other", url: "https://super-nice.net/" },
-            { lng: 139.701500, lat: 35.693500, name: "新宿御苑Sound", capacity: 150, genre: "club", url: "https://super-nice.net/" },
-            { lng: 139.698900, lat: 35.696100, name: "新宿ルイードK4", capacity: 300, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.701800, lat: 35.692900, name: "新宿クラブサイエンス", capacity: 200, genre: "rock", url: "https://super-nice.net/" },
-            { lng: 139.705900, lat: 35.689900, name: "新宿ミノトール2", capacity: 80, genre: "other", url: "https://super-nice.net/" }
-        ];
+Papa.parse("23 Wards Live House.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
 
+        locations = results.data.map(row => ({
+            name: row.name,
+            lat: Number(row.lat),
+            lng: Number(row.lng),
+            capacity: Number(row.description) || 0,
+            genre: row.category,
+            url: "#"
+        }));
+
+        renderMarkers(0);
+        updateMyListUI();
+    }
+});
         let currentMarkers = [];
 
         function renderMarkers(minCapacity = 0) {
@@ -607,20 +468,10 @@ button:hover{
                 if (loc.capacity >= 1000) { circleSize = 36; } 
                 else if (loc.capacity >= 600) { circleSize = 26; }
 
-                let markerColor = 'rgba(255, 255, 0, 0.45)'; 
-                let genreName = 'ロック / J-POP';
-                
-                if (loc.genre === 'club') {
-                    markerColor = 'rgba(147, 51, 234, 0.45)'; 
-                    genreName = 'クラブ / テクノ / DJ';
-                    countClub++;
-                } else if (loc.genre === 'idol') {
-                    markerColor = 'rgba(255, 0, 0, 0.45)';  
-                    genreName = '地下アイドル / アコースティック';
-                    countIdol++;
-                } else {
-                    countRock++;
-                }
+                let markerColor = 'rgba(0,217,255,0.55)';
+                let genreName = 'ライブハウス';
+
+             countRock++;
 
                 const el = document.createElement('div');
                 el.style.width = `${circleSize}px`;
@@ -659,11 +510,9 @@ button:hover{
             document.getElementById('stats-count').textContent = activeCount;
             document.getElementById('stats-total').textContent = totalCapacity.toLocaleString();
 
-            document.getElementById('genre-breakdown').innerHTML = `
-                <span>🟡 ロック系: <strong style="color:#fff">${countRock}</strong></span>
-                <span>🟣 クラブ系: <strong style="color:#fff">${countClub}</strong></span>
-                <span>🔴 アイドル系: <strong style="color:#fff">${countIdol}</strong></span>
-            `;
+        document.getElementById('genre-breakdown').innerHTML = `
+      <span>🎵 ライブハウス: <strong style="color:#fff">${activeCount}</strong></span>
+     `;
 
             createStationMarker([139.7016, 35.6580], "渋谷駅（基準点）");
             createStationMarker([139.7008, 35.6896], "新宿駅（主要ターミナル駅）");
@@ -784,9 +633,6 @@ button:hover{
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
-        
-        renderMarkers(0);
-        updateMyListUI();
 
         const switcher = document.querySelectorAll('.layer-switcher input');
         switcher.forEach(input => {
