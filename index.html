@@ -381,14 +381,7 @@ const map = new maplibregl.Map({
             minZoom: 0,
             maxZoom: 18
         });
-        map.on("click", (e) => {
-    const lat = e.lngLat.lat.toFixed(6);
-    const lng = e.lngLat.lng.toFixed(6);
 
-    alert(`緯度: ${lat}\n経度: ${lng}`);
-
-    console.log(`${lat},${lng}`);
-});
         const mapStyles = {
             satellite: {
                 version: 8,
