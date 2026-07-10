@@ -435,6 +435,18 @@ Papa.parse("23 Wards Live House.csv", {
         }));
 
         renderMarkers(0);
+
+const bounds = new maplibregl.LngLatBounds();
+
+currentMarkers.forEach(marker => {
+    bounds.extend(marker.getLngLat());
+});
+
+map.fitBounds(bounds, {
+    padding: 50,
+    maxZoom: 12
+});
+        
         updateMyListUI();
     }
 });
