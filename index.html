@@ -462,6 +462,24 @@ const map = new maplibregl.Map({
             }
         };
 
+
+    map.on('load', () => {
+    map.addSource('ward-boundary', {
+        type: 'geojson',
+        data: 'tokyo23.geojson'
+    });
+
+    map.addLayer({
+        id: 'ward-boundary-line',
+        type: 'line',
+        source: 'ward-boundary',
+        paint: {
+            'line-color': '#00d9ff',
+            'line-width': 2,
+            'line-opacity': 0.8
+        }
+    });
+});
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
         map.addControl(new maplibregl.GeolocateControl({
             positionOptions: { enableHighAccuracy: true },
