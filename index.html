@@ -163,10 +163,12 @@
 
     z-index: 20;
 
-    transform: translateX(330px);
-    transition: transform .3s;
+    transform: translateX(0);
+transition: transform .3s;
 }
-
+.side-panel.collapsed {
+    transform: translateX(100%);
+}
         .panel-header {
             padding: 18px;
             background: #121214;
@@ -314,7 +316,10 @@ button:hover{
 
 <body>
 
-<button class="about-btn" onclick="openAbout()">ABOUT</button>
+<div class="top-menu">
+    <button class="menu-btn" onclick="toggleSidePanel()">マイリスト</button>
+    <button class="menu-btn" onclick="openAbout()">ABOUT</button>
+</div>
 
 <div id="about-modal" class="about-modal">
     <div class="about-card">
