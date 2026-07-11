@@ -117,31 +117,7 @@ transition: transform 0.9s cubic-bezier(.22, 1, .36, 1);
     transform: translateY(0);
 }
 
-.about-btn {
-    position: absolute;
-    top: 15px;
-    right: 60px;
 
-    background: #27272a;
-    color: #f4f4f5;
-    border: 1px solid rgba(255,255,255,0.1);
-
-    padding: 9px 16px;
-    border-radius: 0px;
-
-    font-weight: 600;
-    font-size: 12px;
-    cursor: pointer;
-    z-index: 15;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    transition: all 0.2s ease;
-}
 
 .about-btn:hover {
     background: #3f3f46;
@@ -150,9 +126,6 @@ transition: transform 0.9s cubic-bezier(.22, 1, .36, 1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.toggle-panel-btn {
-    right: 145px;
-}
 
 .about-close {
     position: absolute;
@@ -177,3 +150,36 @@ transition: transform 0.9s cubic-bezier(.22, 1, .36, 1);
     box-shadow: none;
 }
 
+.top-menu {
+    position: absolute;
+    top: 15px;
+    right: 60px;
+    z-index: 15;
+
+    display: flex;
+    gap: 8px;
+}
+
+.menu-btn {
+    background: #27272a;
+    color: #f4f4f5;
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+    padding: 8px 14px;
+    border-radius: 0;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+
+    transition: .2s;
+}
+
+.menu-btn:hover {
+    background: #3f3f46;
+    color: #fff;
+}
