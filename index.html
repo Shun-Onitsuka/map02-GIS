@@ -146,19 +146,27 @@
             color: #fff;
         }
         
-        /* 右側サイドパネル（border-radius: 0） */
-   .side-panel{
+    　　.side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
 
-    background:rgba(3,10,25,.98);
+    width: 330px;
+    height: 100vh;
 
-    border-left:2px solid #00d9ff;
+    display: flex;
+    flex-direction: column;
 
-    box-shadow:
-        -10px 0 40px rgba(0,217,255,.2);
+    background: rgba(3,10,25,.98);
+
+    border-left: 2px solid #00d9ff;
+
+    z-index: 20;
+
+    transform: translateX(330px);
+    transition: transform .3s;
 }
-        .side-panel.collapsed {
-            transform: translateX(330px);
-        }
+
         .panel-header {
             padding: 18px;
             background: #121214;
@@ -306,14 +314,64 @@ button:hover{
 
 <body>
 
+<button class="about-btn" onclick="openAbout()">ABOUT</button>
+
+<div id="about-modal" class="about-modal">
+    <div class="about-card">
+
+        <button class="about-close" onclick="closeAbout()">×</button>
+
+        <h1>🎵 東京23区 ライブハウスマップ</h1>
+
+        <p class="about-subtitle">
+            東京23区のライブハウスをキャパシティ別に可視化したWebサイト
+        </p>
+
+        <h3>プロジェクト概要</h3>
+
+        <p>
+            本マップは、東京23区にあるライブハウスの立地と
+            収容人数を可視化した空間分析マップです。
+            キャパシティによる規模の違いを色分けして比較できます。
+        </p>
+
+        <h3>ピンの色分け</h3>
+
+        <p>
+            🟢 50人まで<br>
+            🟠 51〜100人<br>
+            🔴 101人以上
+        </p>
+
+        <h3>グループメンバー</h3>
+
+        <div class="member-grid">
+
+            <div class="member-card">
+                <div class="member-avatar">
+    <img src="Onitsuka.jpg" alt="鬼塚　駿">
+</div>
+                <h4>鬼塚　駿</h4>
+                <p>担当：マップ作製</p>
+            </div>
+
+            <div class="member-card">
+                <div class="member-avatar">
+    <img src="Okano.jpg" alt="岡野　俊介">
+</div>
+                <h4>岡野　俊介</h4>
+                <p>担当：データ収集　アイデア</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
    <div class="app-container">
     <div id="map"></div>
 </div>
 
-    <div class="layer-switcher">
-        <label><input type="radio" name="basemap" value="satellite" checked> 航空写真</label>
-        <label><input type="radio" name="basemap" value="pale"> 淡色地図</label>
-    </div>
 
     <div class="filter-control">
         <label>最小キャパシティ: <span id="capacity-value" style="color: #4f46e5; font-size: 13px;">0</span> 人</label>
@@ -329,48 +387,11 @@ button:hover{
         <div id="genre-breakdown" class="genre-stats-box"></div>
     </div>
 
-    <div class="nav-control-buttons">
-<button class="nav-btn" onclick="jumpToArea([139.7715, 35.6987], 14.5)">千代田区（秋葉原・神田）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7645, 35.6724], 14.5)">中央区（銀座・日本橋）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7315, 35.6628], 14.5)">港区（六本木・赤坂）</button>
 
-
-<button class="nav-btn" onclick="jumpToArea([139.7104, 35.7289], 14.5)">豊島区（池袋・大塚）</button>
-<button class="nav-btn" onclick="jumpToArea([139.6975, 35.6595], 14.5)">渋谷エリア</button>
-<button class="nav-btn" onclick="jumpToArea([139.7008, 35.6896], 14.5)">新宿エリア</button>
-
-
-<button class="nav-btn" onclick="jumpToArea([139.7521, 35.7043], 14.5)">文京区（後楽園・春日）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7788, 35.7133], 14.5)">台東区（上野・浅草）</button>
-<button class="nav-btn" onclick="jumpToArea([139.8131, 35.6969], 14.5)">墨田区（錦糸町・両国）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7895, 35.6491], 14.5)">江東区（豊洲・有明・新木場）</button>
-
-
-<button class="nav-btn" onclick="jumpToArea([139.7354, 35.6275], 14.5)">品川区（大井町・品川）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7156, 35.6331], 14.5)">目黒区（目黒・中目黒・自由が丘）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7162, 35.5651], 14.5)">大田区（蒲田・羽田）</button>
-<button class="nav-btn" onclick="jumpToArea([139.6672, 35.6616], 14.5)">世田谷区（下北沢・三軒茶屋）</button>
-
-
-<button class="nav-btn" onclick="jumpToArea([139.6651, 35.7058], 14.5)">中野区（中野駅周辺）</button>
-<button class="nav-btn" onclick="jumpToArea([139.6511, 35.7048], 14.5)">杉並区（高円寺・荻窪・西荻）</button>
-<button class="nav-btn" onclick="jumpToArea([139.6715, 35.7369], 14.5)">練馬区（江古田・練馬）</button>
-
-
-<button class="nav-btn" onclick="jumpToArea([139.7358, 35.7535], 14.5)">北区（赤羽・王子）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7811, 35.7425], 14.5)">荒川区（日暮里・町屋）</button>
-<button class="nav-btn" onclick="jumpToArea([139.7198, 35.7512], 14.5)">板橋区（板橋・大山）</button>
-
-<button class="nav-btn" onclick="jumpToArea([139.8044, 35.7444], 14.5)">足立区（北千住・西新井）</button>
-<button class="nav-btn" onclick="jumpToArea([139.8475, 35.7656], 14.5)">葛飾区（亀有・新小岩エリア）</button>
-<button class="nav-btn" onclick="jumpToArea([139.8643, 35.6842], 14.5)">江戸川区（船堀・小岩）</button>
-    </div>
-
-    <button class="toggle-panel-btn" onclick="toggleSidePanel()">📋 マイリスト</button>
 
 <div id="side-panel" class="side-panel collapsed">
             <div class="panel-header">
-                <h3>❤️ MY参戦リスト & セトリ</h3>
+                <h3>❤️ マイリスト</h3>
                 <button onclick="clearAllFavorites()" style="background:#dc2626; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">全件削除</button>
                 <button class="close-panel-btn" onclick="toggleSidePanel()">×</button>
             </div>
@@ -380,7 +401,7 @@ button:hover{
     </div>
 
 <div class="legend">
-        </div>
+    
     
     </div>
 
@@ -501,11 +522,19 @@ map.fitBounds(bounds, {
                 activeCount++;
                 totalCapacity += loc.capacity;
 
-                let circleSize = 16;
-                if (loc.capacity >= 1000) { circleSize = 36; } 
-                else if (loc.capacity >= 600) { circleSize = 26; }
+            let circleSize = 18;
+let markerColor = '#22c55e';
 
-                let markerColor = 'rgba(0,217,255,0.55)';
+if (loc.capacity <= 50) {
+    markerColor = '#22c55e';
+    circleSize = 18;
+} else if (loc.capacity <= 100) {
+    markerColor = '#f59e0b';
+    circleSize = 22;
+} else {
+    markerColor = '#f43f5e';
+    circleSize = 27;
+}
                 let genreName = 'ライブハウス';
 
              countRock++;
@@ -547,9 +576,27 @@ map.fitBounds(bounds, {
             document.getElementById('stats-count').textContent = activeCount;
             document.getElementById('stats-total').textContent = totalCapacity.toLocaleString();
 
-        document.getElementById('genre-breakdown').innerHTML = `
-      <span>🎵 ライブハウス: <strong style="color:#fff">${activeCount}</strong></span>
-     `;
+        const smallCount = locations.filter(loc =>
+    loc.capacity >= minCapacity &&
+    loc.capacity <= 50
+).length;
+
+const mediumCount = locations.filter(loc =>
+    loc.capacity >= minCapacity &&
+    loc.capacity >= 51 &&
+    loc.capacity <= 100
+).length;
+
+const largeCount = locations.filter(loc =>
+    loc.capacity >= minCapacity &&
+    loc.capacity >= 101
+).length;
+
+document.getElementById('genre-breakdown').innerHTML = `
+    <span>🟢 50人まで: <strong>${smallCount}</strong></span>
+    <span>🟠 51〜100人: <strong>${mediumCount}</strong></span>
+    <span>🔴 101人以上: <strong>${largeCount}</strong></span>
+`;
 
             createStationMarker([139.7016, 35.6580], "渋谷駅（基準点）");
             createStationMarker([139.7008, 35.6896], "新宿駅（主要ターミナル駅）");
@@ -671,16 +718,14 @@ map.fitBounds(bounds, {
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
-        const switcher = document.querySelectorAll('.layer-switcher input');
-        switcher.forEach(input => {
-            input.addEventListener('change', (e) => {
-                map.setStyle(mapStyles[e.target.value]);
-                map.once('style.load', () => {
-                    const currentSliderValue = parseInt(document.getElementById('capacity-slider').value);
-                    renderMarkers(currentSliderValue);
-                });
-            });
-        });
+
+window.openAbout = function() {
+    document.getElementById('about-modal').classList.add('show');
+};
+
+window.closeAbout = function() {
+    document.getElementById('about-modal').classList.remove('show');
+};
 
         const slider = document.getElementById('capacity-slider');
         const sliderVal = document.getElementById('capacity-value');
