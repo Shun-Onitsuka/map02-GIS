@@ -462,11 +462,10 @@ const map = new maplibregl.Map({
             }
         };
 
-
-    map.on('load', () => {
+map.on('load', () => {
     map.addSource('ward-boundary', {
         type: 'geojson',
-        data: 'tokyo23.geojson'
+        data: 'https://isrs-gis.bosai.go.jp/webgis/rest/services/dep_mizu/tokyo23area/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson'
     });
 
     map.addLayer({
@@ -476,10 +475,11 @@ const map = new maplibregl.Map({
         paint: {
             'line-color': '#00d9ff',
             'line-width': 2,
-            'line-opacity': 0.8
+            'line-opacity': 0.9
         }
     });
 });
+
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
         map.addControl(new maplibregl.GeolocateControl({
             positionOptions: { enableHighAccuracy: true },
