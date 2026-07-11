@@ -5,6 +5,7 @@ html, body {
     background-color: #111;
     color: #fff;
     font-family: sans-serif;
+    overflow-x: hidden;
 }
 
 /* ===== ヘッダー（外枠）の設定 ===== */
@@ -52,4 +53,127 @@ html, body {
     background-color: #1a1a1a;
     border-radius: 8px;
     line-height: 1.8;
+    box-sizing: border-box;
 }
+
+.member-avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #00d9ff;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.about-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.75);
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.5s ease;
+}
+
+.about-modal.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.about-card {
+    width: 650px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+
+    background: #050f23;
+    border: 1px solid #00d9ff;
+    border-radius: 15px;
+    padding: 30px;
+    margin-top: 50px;
+    position: relative;
+
+    box-shadow: 0 0 35px rgba(0, 217, 255, 0.3);
+
+transform: translateY(-100vh);
+transition: transform 0.9s cubic-bezier(.22, 1, .36, 1);
+}
+
+.about-modal.show .about-card {
+    transform: translateY(0);
+}
+
+.about-btn {
+    position: absolute;
+    top: 15px;
+    right: 60px;
+
+    background: #27272a;
+    color: #f4f4f5;
+    border: 1px solid rgba(255,255,255,0.1);
+
+    padding: 9px 16px;
+    border-radius: 0px;
+
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 15;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: all 0.2s ease;
+}
+
+.about-btn:hover {
+    background: #3f3f46;
+    color: #f4f4f5;
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.toggle-panel-btn {
+    right: 145px;
+}
+
+.about-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+
+    background: none;
+    border: none;
+
+    color: #fff;
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1;
+
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.about-close:hover {
+    color: #00d9ff;
+    background: none;
+    box-shadow: none;
+}
+
