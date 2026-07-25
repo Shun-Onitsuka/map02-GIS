@@ -579,15 +579,18 @@ map.fitBounds(bounds, {
             let circleSize = 18;
 let markerColor = '#22c55e';
 
-if (loc.capacity <= 50) {
-    markerColor = '#22c55e';
+if (loc.capacity <= 100) {
+    markerColor = '#22c55e';   // 緑
     circleSize = 18;
-} else if (loc.capacity <= 100) {
-    markerColor = '#f59e0b';
+} else if (loc.capacity <= 300) {
+    markerColor = '#f59e0b';   // オレンジ
     circleSize = 22;
+} else if (loc.capacity <= 1000) {
+    markerColor = '#ef4444';   // 赤
+    circleSize = 26;
 } else {
-    markerColor = '#f43f5e';
-    circleSize = 27;
+    markerColor = '#8b5cf6';   // 紫
+    circleSize = 30;
 }
                 let genreName = 'ライブハウス';
 
@@ -630,26 +633,32 @@ if (loc.capacity <= 50) {
             document.getElementById('stats-count').textContent = activeCount;
             document.getElementById('stats-total').textContent = totalCapacity.toLocaleString();
 
-        const smallCount = locations.filter(loc =>
+const greenCount = locations.filter(loc =>
     loc.capacity >= minCapacity &&
-    loc.capacity <= 50
-).length;
-
-const mediumCount = locations.filter(loc =>
-    loc.capacity >= minCapacity &&
-    loc.capacity >= 51 &&
     loc.capacity <= 100
 ).length;
 
-const largeCount = locations.filter(loc =>
+const orangeCount = locations.filter(loc =>
     loc.capacity >= minCapacity &&
-    loc.capacity >= 101
+    loc.capacity > 100 &&
+    loc.capacity <= 300
 ).length;
 
+const redCount = locations.filter(loc =>
+    loc.capacity >= minCapacity &&
+    loc.capacity > 300 &&
+    loc.capacity <= 1000
+).length;
+
+const purpleCount = locations.filter(loc =>
+    loc.capacity >= minCapacity &&
+    loc.capacity > 1000
+).length;
 document.getElementById('genre-breakdown').innerHTML = `
-    <span>🟢 50人まで: <strong>${smallCount}</strong></span>
-    <span>🟠 51〜100人: <strong>${mediumCount}</strong></span>
-    <span>🔴 101人以上: <strong>${largeCount}</strong></span>
+    <span>🟢 ～100人: <strong>${greenCount}</strong></span>
+    <span>🟠 101～300人: <strong>${orangeCount}</strong></span>
+    <span>🔴 301～1000人: <strong>${redCount}</strong></span>
+    <span>🟣 1001人以上: <strong>${purpleCount}</strong></span>
 `;
 
 // 渋谷・新宿
