@@ -419,84 +419,69 @@ button:hover{
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-const map = new maplibregl.Map({
-    container: 'map',
-    // ▼ ここから変更 ▼
-    style: {
-        version: 8,
-        // 💡 この1行が超重要！これがないと文字(区名)が表示されません
-        glyphs: "https://gsi-cyberjapan.github.io/optimal_bvmap/fonts/{fontstack}/{range}.pbf",
-        sources: {
-            'gsi-satellite': {
-                type: 'raster',
-                tiles: ['https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'],
-                tileSize: 256,
-                attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
-            }
-        },
-        layers: [{ id: 'gsi-satellite-layer', type: 'raster', source: 'gsi-satellite', minzoom: 0, maxzoom: 18 }]
-    },
-    // ▲ ここまで変更 ▲
-    center: [139.700, 35.673], // 渋谷と新宿の中間地点
-    zoom: 13,                  
-    minZoom: 0,
-    maxZoom: 18
+// 1. 地図の初期化（カッコを正しく閉じる）
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                glyphs: "https://gsi-cyberjapan.github.io/optimal_bvmap/fonts/{fontstack}/{range}.pbf",
+                sources: {
+                    'gsi-satellite': {
+                        type: 'raster',
+                        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'],
+                        tileSize: 256,
+                        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
+                    }
+                },
+                layers: [{ id: 'gsi-satellite-layer', type: 'raster', source: 'gsi-satellite', minzoom: 0, maxzoom: 18 }]
+            },
+            center: [139.700, 35.673], // 渋谷と新宿の中間地点
+            zoom: 13,                  
+            minZoom: 0,
+            maxZoom: 18
+        });
 
-    map.on("load", () => {
+        // 2. コントロールの追加
+        map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+        map.addControl(new maplibregl.GeolocateControl({
+            positionOptions: { enableHighAccuracy: true },
+            trackUserLocation: true
+        }), 'top-right');
 
-    map.addSource("wards", {
-        type: "geojson",
-        data: "./data/wards.geojson"
-    });
+        // 3. データ（GeoJSON）の読み込み
+        map.on("load", () => {
+            map.addSource("wards", {
+                type: "geojson",
+                data: "./data/wards.geojson"
+            });
 
-    // 1. 23区の塗りつぶし
-    map.addLayer({
-        id: "ward-fill",
-        type: "fill",
-        source: "wards",
-        paint: {
-            "fill-color": "#00d9ff", // UIのテーマカラーに合わせる
-            "fill-opacity": 0.05     // ライブハウスのピンを邪魔しないよう極力薄く
-        }
-    });
+            map.addLayer({
+                id: "ward-fill",
+                type: "fill",
+                source: "wards",
+                paint: { "fill-color": "#00d9ff", "fill-opacity": 0.05 }
+            });
 
-    // 2. 23区の境界線（サイバー感のある点線）
-    map.addLayer({
-        id: "ward-border",
-        type: "line",
-        source: "wards",
-        paint: {
-            "line-color": "#00d9ff",
-            "line-width": 2,
-            "line-dasharray": [4, 4], // 点線にして抜け感を作る
-            "line-opacity": 0.8
-        }
-    });
+            map.addLayer({
+                id: "ward-border",
+                type: "line",
+                source: "wards",
+                paint: { "line-color": "#00d9ff", "line-width": 2, "line-dasharray": [4, 4], "line-opacity": 0.8 }
+            });
 
-    // 3. 23区の名前（ラベル）
-    map.addLayer({
-        id: "ward-label",
-        type: "symbol",
-        source: "wards",
-        layout: {
-            // 💡 GeoJSONのプロパティ名が 'N03_004' 以外だった場合の保険として 'name' も探すように強化
-            "text-field": ["coalesce", ["get", "N03_004"], ["get", "name"], ""],
-            "text-size": 15,
-            // 読み込んだglyphsのフォントファミリーを指定
-            "text-font": ["NotoSansJP-Regular"],
-            "text-anchor": "center"
-        },
-        paint: {
-            "text-color": "#ffffff",
-            "text-halo-color": "#071625", // 背景の暗さに合わせた太いフチドリで文字を浮き立たせる
-            "text-halo-width": 2
-        }
-    });
-
-});
-});
-
-
+            map.addLayer({
+                id: "ward-label",
+                type: "symbol",
+                source: "wards",
+                layout: {
+                    "text-field": ["coalesce", ["get", "N03_004"], ["get", "name"], ""],
+                    "text-size": 15,
+                    "text-font": ["NotoSansJP-Regular"],
+                    "text-anchor": "center"
+                },
+                paint: { "text-color": "#ffffff", "text-halo-color": "#071625", "text-halo-width": 2 }
+            });
+        });
     
             container: 'map',
     
