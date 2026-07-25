@@ -581,16 +581,16 @@ let markerColor = '#22c55e';
 
 if (loc.capacity <= 100) {
     markerColor = '#22c55e';   // 緑
-    circleSize = 18;
+    circleSize = 22;
 } else if (loc.capacity <= 300) {
     markerColor = '#f59e0b';   // オレンジ
     circleSize = 22;
 } else if (loc.capacity <= 1000) {
     markerColor = '#ef4444';   // 赤
-    circleSize = 26;
+    circleSize = 22;
 } else {
-    markerColor = '#8b5cf6';   // 紫
-    circleSize = 30;
+    markerColor = '##00d9ff';   //水色
+    circleSize = 22;
 }
                 let genreName = 'ライブハウス';
 
@@ -658,7 +658,7 @@ document.getElementById('genre-breakdown').innerHTML = `
     <span>🟢 ～100人: <strong>${greenCount}</strong></span>
     <span>🟠 101～300人: <strong>${orangeCount}</strong></span>
     <span>🔴 301～1000人: <strong>${redCount}</strong></span>
-    <span>🟣 1001人以上: <strong>${purpleCount}</strong></span>
+    <span>🔵 1001人以上: <strong>${blueCount}</strong></span>
 `;
 
 // 渋谷・新宿
