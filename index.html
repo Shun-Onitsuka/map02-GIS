@@ -504,21 +504,26 @@ button:hover{
 
 let locations = [];
 let wardMarkers = [];
-wardLabels.forEach(ward => {
 
+wardLabels.forEach(ward => {
 
     const el = document.createElement("div");
     el.className = "ward-label";
 
     el.innerHTML = ward.name;
-　　el.style.zIndex = "1000";
     el.style.color = "#ffffff";
     el.style.fontWeight = "bold";
     el.style.fontSize = "15px";
     el.style.textShadow = "0 0 6px #000";
     el.style.pointerEvents = "none";
 
-new maplibregl.Marker({
+    const marker = new maplibregl.Marker({
+        element: el
+    })
+    .setLngLat([ward.lng, ward.lat])
+    .addTo(map);
+
+    wardMarkers.push(marker);
 
 });
     
