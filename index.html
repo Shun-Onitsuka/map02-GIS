@@ -503,7 +503,7 @@ button:hover{
         let favorites = JSON.parse(localStorage.getItem('shibuya_livehouse_favs')) || {};
 
 let locations = [];
-
+let wardMarkers = [];
 wardLabels.forEach(ward => {
 
 
@@ -518,11 +518,7 @@ wardLabels.forEach(ward => {
     el.style.textShadow = "0 0 6px #000";
     el.style.pointerEvents = "none";
 
-    new maplibregl.Marker({
-        element: el
-    })
-    .setLngLat([ward.lng, ward.lat])
-    .addTo(map);
+new maplibregl.Marker({
 
 });
     
@@ -808,10 +804,18 @@ createStationMarker([139.7059, 35.7295], "池袋駅");
 
 
 window.openAbout = function() {
+    wardMarkers.forEach(marker => {
+        marker.getElement().style.display = "none";
+    });
+
     document.getElementById('about-modal').classList.add('show');
 };
 
 window.closeAbout = function() {
+    wardMarkers.forEach(marker => {
+        marker.getElement().style.display = "";
+    });
+
     document.getElementById('about-modal').classList.remove('show');
 };
 
