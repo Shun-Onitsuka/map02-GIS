@@ -448,40 +448,7 @@ button:hover{
             trackUserLocation: true
         }), 'top-right');
 
-        // 3. データ（GeoJSON）の読み込み
-        map.on("load", () => {
-            map.addSource("wards", {
-                type: "geojson",
-                data: "./data/wards.geojson"
-            });
-
-            map.addLayer({
-                id: "ward-fill",
-                type: "fill",
-                source: "wards",
-                paint: { "fill-color": "#00d9ff", "fill-opacity": 0.05 }
-            });
-
-            map.addLayer({
-                id: "ward-border",
-                type: "line",
-                source: "wards",
-                paint: { "line-color": "#00d9ff", "line-width": 2, "line-dasharray": [4, 4], "line-opacity": 0.8 }
-            });
-
-            map.addLayer({
-                id: "ward-label",
-                type: "symbol",
-                source: "wards",
-                layout: {
-                    "text-field": ["coalesce", ["get", "N03_004"], ["get", "name"], ""],
-                    "text-size": 15,
-                    "text-font": ["NotoSansJP-Regular"],
-                    "text-anchor": "center"
-                },
-                paint: { "text-color": "#ffffff", "text-halo-color": "#071625", "text-halo-width": 2 }
-            });
-        });
+     
     
             container: 'map',
     
