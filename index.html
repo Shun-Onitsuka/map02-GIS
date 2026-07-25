@@ -784,10 +784,16 @@ createStationMarker([139.7059, 35.7295], "池袋駅");
             }
         };
 
-        window.toggleSidePanel = function() {
-            const panel = document.getElementById('side-panel');
-            panel.classList.toggle('collapsed');
-        };
+window.toggleSidePanel = function() {
+    const panel = document.getElementById('side-panel');
+    panel.classList.toggle('collapsed');
+
+    const isOpen = !panel.classList.contains('collapsed');
+
+    wardMarkers.forEach(marker => {
+        marker.getElement().style.display = isOpen ? "none" : "";
+    });
+};
 
         // 💡 ここから追加：お気に入りを全件削除する機能
         window.clearAllFavorites = function() {
