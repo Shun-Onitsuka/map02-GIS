@@ -589,7 +589,7 @@ if (loc.capacity <= 100) {
     markerColor = '#ef4444';   // 赤
     circleSize = 22;
 } else {
-    markerColor = '##00d9ff';   //水色
+    markerColor = '#00d9ff';   //水色
     circleSize = 22;
 }
                 let genreName = 'ライブハウス';
@@ -650,7 +650,7 @@ const redCount = locations.filter(loc =>
     loc.capacity <= 1000
 ).length;
 
-const purpleCount = locations.filter(loc =>
+const blueCount = locations.filter(loc =>
     loc.capacity >= minCapacity &&
     loc.capacity > 1000
 ).length;
