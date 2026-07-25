@@ -487,8 +487,7 @@ let locations = [];
 
 wardLabels.forEach(ward => {
 
-    const el = document.createElement("div");
-         const wardLabels = [
+    const wardLabels = [
     { name: "千代田区", lng: 139.753, lat: 35.694 },
     { name: "中央区", lng: 139.772, lat: 35.671 },
     { name: "港区", lng: 139.751, lat: 35.658 },
@@ -513,8 +512,11 @@ wardLabels.forEach(ward => {
     { name: "葛飾区", lng: 139.848, lat: 35.744 },
     { name: "江戸川区", lng: 139.869, lat: 35.706 }
 ];
-    el.innerHTML = ward.name;
+    const el = document.createElement("div");
+    el.className = "ward-label";
 
+    el.innerHTML = ward.name;
+　　el.style.zIndex = "9999";
     el.style.color = "#ffffff";
     el.style.fontWeight = "bold";
     el.style.fontSize = "15px";
@@ -528,7 +530,6 @@ wardLabels.forEach(ward => {
     .addTo(map);
 
 });
-    
     
 Papa.parse("23 Wards Live House.csv", {
     download: true,
