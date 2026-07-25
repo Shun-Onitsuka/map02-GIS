@@ -420,6 +420,26 @@ button:hover{
 
 <script>
 
+    const map = new maplibregl.Map({
+
+            container: 'map',
+            style: styles = {
+                version: 8,
+                sources: {
+                    'gsi-satellite': {
+                        type: 'raster',
+                        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'],
+                        tileSize: 256,
+                        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>"
+                    }
+                },
+                layers: [{ id: 'gsi-satellite-layer', type: 'raster', source: 'gsi-satellite', minzoom: 0, maxzoom: 18 }]
+            },
+            center: [139.700, 35.673], // 渋谷と新宿の中間地点
+            zoom: 13,                  
+            minZoom: 0,
+            maxZoom: 18
+        });
         const mapStyles = {
             satellite: {
                 version: 8,
