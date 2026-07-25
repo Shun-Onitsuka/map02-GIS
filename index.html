@@ -380,12 +380,7 @@ button:hover{
 
     <div class="filter-control">
         <label>最小キャパシティ: <span id="capacity-value" style="color: #4f46e5; font-size: 13px;">0</span> 人</label>
- <input type="range"
-       id="capacity-slider"
-       min="0"
-       max="11"
-       step="1"
-       value="0">
+        <input type="range" id="capacity-slider" min="0" max="1500" step="50" value="0">
     </div>
 
     <div class="stats-counter">
@@ -811,48 +806,15 @@ window.closeAbout = function() {
     document.getElementById('about-modal').classList.remove('show');
 };
 
-const capacitySteps = [
-    0,
-    10,
-    20,
-    30,
-    50,
-    100,
-    200,
-    300,
-    500,
-    800,
-    1000,
-    1500
-];
+        const slider = document.getElementById('capacity-slider');
+        const sliderVal = document.getElementById('capacity-value');
+        slider.addEventListener('input', (e) => {
+            const minCap = parseInt(e.target.value);
+            sliderVal.textContent = minCap;
+            renderMarkers(minCap);
+        });
     
-const slider = document.getElementById('capacity-slider');
-const sliderVal = document.getElementById('capacity-value');
 
-slider.addEventListener('input', (e) => {
-
-    const minCap = capacitySteps[parseInt(e.target.value)];
-
-    sliderVal.textContent = minCap;
-
-    renderMarkers(minCap);
-
-});
-
-<div class="slider-labels">
-  <span>0</span>
-  <span>10</span>
-  <span>20</span>
-  <span>30</span>
-  <span>50</span>
-  <span>100</span>
-  <span>200</span>
-  <span>300</span>
-  <span>500</span>
-  <span>800</span>
-  <span>1000</span>
-  <span>1500</span>
-</div>
 
     </script>
 </body>
